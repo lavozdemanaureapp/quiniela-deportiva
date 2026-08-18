@@ -2,461 +2,174 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Quiniela Deportiva - App Oficial</title>
+<link rel="manifest" href="manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiniela Deportiva</title>
+    <!-- Icono para la web / acceso directo móvil -->
+    <link rel="icon" type="image/png" href="icono-balon.png">
     <style>
-        :root { --primary: #0f172a; --accent: #22c55e; --bg: #f8fafc; --danger: #ef4444; }
-        body { font-family: sans-serif; background: var(--bg); padding: 20px; }
-        .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .hidden { display: none !important; }
-        .card { background: #f1f5f9; padding: 15px; margin: 15px 0; border-radius: 8px; }
-        .admin-section { border: 2px solid #f59e0b; background: #fffbeb; }
-        input, button, select { padding: 8px; margin: 5px 0; border-radius: 4px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
-        .btn-delete { background: var(--danger); color: white; border: none; padding: 4px 8px; font-size: 11px; cursor: pointer; }
-        .scroll-list { max-height: 220px; overflow-y: auto; background: white; border: 1px solid #ddd; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 5px; }
-        th, td { padding: 8px; border: 1px solid #e2e8f0; text-align: center; }
-        th { background: #0f172a; color: white; }
-        .user-bar { display: flex; justify-content: space-between; align-items: center; background: #e2e8f0; padding: 10px 15px; border-radius: 6px; margin-bottom: 20px; }
-        .score-input { width: 40px; text-align: center; padding: 4px; }
-        .admin-result-box { background: #fef3c7; border: 1px dashed #f59e0b; padding: 6px; margin-top: 5px; border-radius: 4px; font-size: 12px; }
-        .closed-badge { color: #ef4444; font-weight: bold; font-size: 11px; }
-        .help-text { text-align: center; font-size: 12px; color: #64748b; margin-top: 10px; }
-        .rules-box { background: #e0f2fe; border: 1px solid #bae6fd; padding: 10px 15px; border-radius: 6px; font-size: 12px; color: #0369a1; margin-bottom: 15px; }
-        .rules-box ul { margin: 5px 0 0 20px; padding: 0; }
-        .scroll-leaderboard { max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px; }
-        
-        .hero-banner {
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: white;
-            text-align: center;
-            padding: 25px 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        :root {
+            --primary-color: #1b4d3e;
+            --accent-color: #ffcc00;
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --text-color: #333333;
         }
-        .hero-banner h1 { margin: 0 0 5px 0; font-size: 24px; color: #22c55e; }
-        .hero-banner p { margin: 0; font-size: 13px; color: #94a3b8; }
-        
-        .notification-banner {
-            background: #fef08a;
-            border: 1px solid #facc15;
-            color: #854d0e;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 12px;
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 15px;
+            font-size: 16px; /* Letra base grande para móviles */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .match-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
             margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .match-header {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 10px;
             text-align: center;
             font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .team-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.05rem;
+            font-weight: 500;
+        }
+
+        .team-icon {
+            width: 30px;
+            height: 30px;
+            background: #ddd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        input.score-input {
+            width: 55px;
+            height: 45px;
+            text-align: center;
+            font-size: 1.2rem;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            background: #fafafa;
+        }
+
+        input.score-input:focus {
+            border-color: var(--primary-color);
+            background: #fff;
+        }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(27, 77, 62, 0.3);
         }
     </style>
-
-    <!-- FIREBASE SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- BANNER -->
-        <div class="hero-banner">
-            <h1>⚽ QUINIELA DEPORTIVA</h1>
-            <p>¡Diviértete entre amigos pronosticando y compitiendo!</p>
-        </div>
-        
-        <!-- LOGIN -->
-        <div id="auth-section" class="card">
-            <h2>Ingresar a la Quiniela</h2>
-            <input type="text" id="nombreUsuario" placeholder="Tu Nombre o Apodo">
-            <input type="password" id="pass" placeholder="PIN secreto">
-            <button id="btn-login" style="background: var(--accent); color: white; font-weight: bold;">Entrar / Registrarse</button>
-            <div class="help-text">
-                💡 ¿Olvidaste tu PIN? Comunícate con el administrador (Alexis).
-            </div>
-        </div>
 
-        <!-- APP PRINCIPAL -->
-        <div id="app-section" class="hidden">
-            <div class="user-bar">
-                <span>Participante: <strong id="user-name-display"></strong></span>
-                <button id="btn-logout-top" style="width: auto; padding: 6px 12px; background: var(--danger); color: white;">Salir</button>
-            </div>
+    <header>
+        <h1>⚽ Quiniela Móvil</h1>
+        <p>Jornada Actual • Ingresa tus marcadores</p>
+    </header>
 
-            <!-- PANEL ADMINISTRADOR -->
-            <div id="admin-panel" class="card admin-section hidden">
-                <h2>👑 PANEL ADMINISTRADOR</h2>
-                <div class="card">
-                    <h3>Cargar Nuevo Partido</h3>
-                    <input type="text" id="jornada" placeholder="Jornada (ej. JORNADA 5)">
-                    <input type="date" id="fecha">
-                    <input type="time" id="hora">
-                    <input type="text" id="local" placeholder="Equipo Local">
-                    <input type="text" id="visitante" placeholder="Equipo Visitante">
-                    <button id="btn-add-match" style="background: #d97706; color: white; font-weight: bold;">Cargar Partido</button>
+    <form id="quinielaForm">
+        <!-- Partido 1 -->
+        <div class="match-card">
+            <div class="match-header">Sábado • 4:00 PM</div>
+            <div class="team-row">
+                <div class="team-info">
+                    <div class="team-icon">DT</div>
+                    <span>Deportivo Táchira</span>
                 </div>
-                <h3>Gestión de Participantes (Scroll)</h3>
-                <div class="scroll-list" id="admin-users"></div>
+                <input type="number" class="score-input" min="0" max="9" required placeholder="0">
             </div>
-
-            <!-- REGLAS -->
-            <div class="rules-box">
-                <strong>📋 Reglas de Puntuación:</strong>
-                <ul>
-                    <li><strong>5 Puntos:</strong> Marcador exacto.</li>
-                    <li><strong>3 Puntos:</strong> Empate acertado o ganador con diferencia de goles correcta.</li>
-                    <li><strong>1 Punto:</strong> Acertar solo el ganador (sin la diferencia).</li>
-                </ul>
-            </div>
-
-            <div class="notification-banner">
-                🔔 <strong>Aviso Importante:</strong> Guarda tus pronósticos antes de que inicie cada encuentro. Los partidos se bloquean automáticamente al llegar su hora.
-            </div>
-
-            <!-- JORNADA ACTUAL -->
-            <div class="card">
-                <h2>Jornada Actual - Pronósticos y Resultados</h2>
-                <div id="pronosticos-list">Cargando partidos...</div>
-                <button id="btn-save-pronos" style="margin-top: 15px; background: #2563eb; color: white; font-weight: bold;">💾 Guardar Mis Pronósticos</button>
-            </div>
-
-            <!-- HISTORIAL DE JORNADAS -->
-            <div class="card" style="background: #e2e8f0;">
-                <h2>📁 Historial de Resultados Anteriores</h2>
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <select id="select-jornada-historial">
-                        <option value="">Selecciona una jornada finalizada...</option>
-                    </select>
+            <div class="team-row">
+                <div class="team-info">
+                    <div class="team-icon">CFC</div>
+                    <span>Caracas FC</span>
                 </div>
-                <div id="historial-container">
-                    <p style="font-size: 13px; color: #64748b; text-align: center;">Selecciona una jornada para ver los resultados oficiales y puntos otorgados.</p>
-                </div>
+                <input type="number" class="score-input" min="0" max="9" required placeholder="0">
             </div>
-
-            <!-- TABLA DE POSICIONES -->
-            <div class="card">
-                <h2>🏆 Tabla de Posiciones Acumulada</h2>
-                <div id="leaderboard">Cargando tabla...</div>
-            </div>
-            <button id="btn-logout-bottom" style="background: var(--danger); color: white; font-weight: bold; margin-top: 15px;">Cerrar Sesión</button>
         </div>
-    </div>
 
-    <!-- SCRIPT -->
-    <script>
-        firebase.initializeApp({
-            apiKey: "AIzaSyBoMhJDHec3HOyJeVB3nLqk4YSEfho1haw",
-            authDomain: "quiniela-13212.firebaseapp.com",
-            projectId: "quiniela-13212",
-            storageBucket: "quiniela-13212.firebasestorage.app",
-            messagingSenderId: "940138734007",
-            appId: "1:940138734007:web:c584e4851eel0c3f8cc832"
-        });
+        <!-- Partido 2 -->
+        <div class="match-card">
+            <div class="match-header">Sábado • 7:00 PM</div>
+            <div class="team-row">
+                <div class="team-info">
+                    <div class="team-icon">EQU</div>
+                    <span>Equipo Local</span>
+                </div>
+                <input type="number" class="score-input" min="0" max="9" required placeholder="0">
+            </div>
+            <div class="team-row">
+                <div class="team-info">
+                    <div class="team-icon">EQU</div>
+                    <span>Equipo Visitante</span>
+                </div>
+                <input type="number" class="score-input" min="0" max="9" required placeholder="0">
+            </div>
+        </div>
 
-        const db = firebase.firestore();
-        let currentUser = null;
+        <button type="submit" class="btn-submit">Enviar Pronósticos</button>
+    </form>
 
-        async function handleLogin() {
-            let n = document.getElementById('nombreUsuario').value.trim();
-            let p = document.getElementById('pass').value.trim();
-            if(!n || !p) return alert("Por favor completa tu nombre y tu PIN.");
-            
-            let id = n.toLowerCase().replace(/\s+/g,'');
-            let isAdmin = (n.toLowerCase() === "alexis" && p === "admin123");
-            
-            try {
-                const ref = db.collection("usuarios").doc(id);
-                const snap = await ref.get();
-                
-                if(snap.exists) {
-                    if(snap.data().pin !== p && !isAdmin) return alert("PIN incorrecto para este nombre.");
-                    currentUser = {id, nombre: snap.data().nombre, isAdmin: isAdmin || snap.data().isAdmin};
-                } else {
-                    if(id === "alexis" && !isAdmin) return alert("PIN de admin incorrecto.");
-                    currentUser = {id, nombre: n, isAdmin};
-                    await ref.set({nombre: n, pin: p, puntos: 0, isAdmin});
-                }
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('app-section').classList.remove('hidden');
-                if(currentUser.isAdmin) document.getElementById('admin-panel').classList.remove('hidden');
-                document.getElementById('user-name-display').innerText = currentUser.nombre;
-                loadData();
-            } catch(e) { 
-                alert("Error de conexión: " + e.message); 
-            }
-        }
-
-        async function addMatch() {
-            let jornada = document.getElementById('jornada').value.trim();
-            let fecha = document.getElementById('fecha').value;
-            let hora = document.getElementById('hora').value;
-            let local = document.getElementById('local').value.trim();
-            let visitante = document.getElementById('visitante').value.trim();
-
-            if(!local || !visitante || !fecha || !hora) return alert("Completa todos los datos del partido.");
-
-            await db.collection("partidos").add({
-                jornada: jornada || "Jornada General",
-                fecha: fecha,
-                hora: hora,
-                local: local,
-                visitante: visitante,
-                golesRealA: null,
-                golesRealB: null,
-                archivado: false
-            });
-            alert("¡Partido cargado con éxito!");
-            document.getElementById('local').value = '';
-            document.getElementById('visitante').value = '';
-            loadData();
-        }
-
-        async function eliminarUsuario(id, name) {
-            if(confirm(`¿Borrar al participante ${name}?`)) {
-                await db.collection("usuarios").doc(id).delete();
-                await db.collection("pronosticos").doc(id).delete();
-                loadData();
-            }
-        }
-
-        async function savePronos() {
-            const matches = await db.collection("partidos").get();
-            let pronos = {};
-            let ahora = new Date();
-
-            matches.forEach(d => {
-                let m = d.data();
-                if(m.archivado) return;
-                let mId = d.id;
-                if(m.fecha && m.hora) {
-                    let partidoFechaHora = new Date(`${m.fecha}T${m.hora}`);
-                    if (ahora >= partidoFechaHora) return; 
-                }
-                let gA = document.getElementById(`pronA_${mId}`);
-                let gB = document.getElementById(`pronB_${mId}`);
-                if(gA && gB && !gA.disabled && gA.value !== "" && gB.value !== "") {
-                    pronos[mId] = { golesA: parseInt(gA.value), golesB: parseInt(gB.value) };
-                }
-            });
-
-            try {
-                await db.collection("pronosticos").doc(currentUser.id).set({
-                    nombre: currentUser.nombre,
-                    partidos: pronos
-                }, { merge: true });
-                alert("¡Pronósticos guardados con éxito!");
-                loadTablaPosiciones();
-            } catch(e) { alert("Error al guardar pronósticos: " + e.message); }
-        }
-
-        window.guardarResultadoReal = async (matchId) => {
-            let rA = document.getElementById(`realA_${matchId}`).value;
-            let rB = document.getElementById(`realB_${matchId}`).value;
-            if(rA === "" || rB === "") return alert("Introduce ambos goles reales.");
-
-            let gRealA = parseInt(rA), gRealB = parseInt(rB);
-            try {
-                await db.collection("partidos").doc(matchId).update({ golesRealA: gRealA, golesRealB: gRealB });
-
-                const pronosticosSnap = await db.collection("pronosticos").get();
-                pronosticosSnap.forEach(async (pDoc) => {
-                    let uId = pDoc.id;
-                    let pData = pDoc.data().partidos || {};
-                    if(pData[matchId]) {
-                        let gA_p = pData[matchId].golesA;
-                        let gB_p = pData[matchId].golesB;
-                        
-                        let pts = 0;
-                        let difReal = gRealA - gRealB;
-                        let difPron = gA_p - gB_p;
-
-                        if (gA_p === gRealA && gB_p === gRealB) pts = 5;
-                        else if (gRealA === gRealB && gA_p === gB_p) pts = 3;
-                        else if (difReal === difPron && ((gRealA > gRealB && gA_p > gB_p) || (gRealA < gRealB && gA_p < gB_p))) pts = 3;
-                        else if ((gRealA > gRealB && gA_p > gB_p) || (gRealA < gRealB && gA_p < gB_p)) pts = 1;
-
-                        pData[matchId].puntosObtenidos = pts;
-                        await db.collection("pronosticos").doc(uId).update({ partidos: pData });
-                    }
-                });
-
-                setTimeout(async () => {
-                    const usersSnap = await db.collection("usuarios").get();
-                    for(let uDoc of usersSnap.docs) {
-                        let uId = uDoc.id;
-                        let pDoc = await db.collection("pronosticos").doc(uId).get();
-                        let total = 0;
-                        if(pDoc.exists) {
-                            let parts = pDoc.data().partidos || {};
-                            for(let m in parts) total += (parts[m].puntosObtenidos || 0);
-                        }
-                        await db.collection("usuarios").doc(uId).update({ puntos: total });
-                    }
-                    alert("¡Resultado guardado y puntos recalculados!");
-                    loadData();
-                }, 1000);
-            } catch(e) { alert("Error al procesar resultado: " + e.message); }
-        };
-
-        window.archivarJornada = async (nombreJornada) => {
-            if(confirm(`¿Estás seguro de finalizar y archivar toda la "${nombreJornada}"?`)) {
-                const matches = await db.collection("partidos").get();
-                for(let d of matches.docs) {
-                    if(d.data().jornada === nombreJornada) {
-                        await db.collection("partidos").doc(d.id).update({ archivado: true });
-                    }
-                }
-                alert(`¡${nombreJornada} archivada con éxito al historial!`);
-                loadData();
-            }
-        };
-
-        async function loadData() {
-            const matches = await db.collection("partidos").get();
-            const pDoc = await db.collection("pronosticos").doc(currentUser.id).get();
-            let userPronos = pDoc.exists ? pDoc.data().partidos || {} : {};
-            let ahora = new Date();
-
-            let mHtml = "<table><tr><th>Jornada</th><th>Fecha/Hora</th><th>Partido</th><th>Pronóstico</th></tr>";
-            let jornadasArchivadas = new Set();
-            let jornadasActivas = new Set();
-
-            matches.forEach(d => {
-                let m = d.data();
-                if(!m.local || !m.visitante) return; 
-
-                if(m.archivado) {
-                    jornadasArchivadas.add(m.jornada);
-                    return;
-                }
-
-                jornadasActivas.add(m.jornada);
-                let mId = d.id;
-                let sA = userPronos[mId] ? userPronos[mId].golesA ?? '' : '';
-                let sB = userPronos[mId] ? userPronos[mId].golesB ?? '' : '';
-
-                let partidoCerrado = false;
-                if(m.fecha && m.hora) {
-                    let partidoFechaHora = new Date(`${m.fecha}T${m.hora}`);
-                    if (ahora >= partidoFechaHora) partidoCerrado = true;
-                }
-
-                let inputState = partidoCerrado ? "disabled style='background:#e2e8f0; color:#64748b;'" : "";
-                let estadoTexto = partidoCerrado ? "<br><span class='closed-badge'>🔒 Cerrado</span>" : "";
-
-                let adminBox = "";
-                if(currentUser.isAdmin) {
-                    let rA = m.golesRealA ?? '';
-                    let rB = m.golesRealB ?? '';
-                    adminBox = `
-                        <div class="admin-result-box">
-                            Resultado Oficial: 
-                            <input type="number" min="0" id="realA_${mId}" class="score-input" value="${rA}"> - 
-                            <input type="number" min="0" id="realB_${mId}" class="score-input" value="${rB}">
-                            <button onclick="window.guardarResultadoReal('${mId}')" style="margin-top:4px; background:#d97706; color:white; padding:4px; font-size:11px;">⚡ Calcular</button>
-                        </div>
-                    `;
-                } else if(m.golesRealA !== null && m.golesRealA !== undefined) {
-                    adminBox = `<div style="color: #16a34a; font-size: 11px; margin-top: 3px;">Oficial: ${m.golesRealA} - ${m.golesRealB}</div>`;
-                }
-
-                mHtml += `
-                    <tr>
-                        <td>${m.jornada || ''}</td>
-                        <td>${m.fecha || ''} ${m.hora || ''} ${estadoTexto}</td>
-                        <td><strong>${m.local} vs ${m.visitante}</strong>${adminBox}</td>
-                        <td>
-                            <input type="number" min="0" id="pronA_${mId}" class="score-input" value="${sA}" ${inputState}> - 
-                            <input type="number" min="0" id="pronB_${mId}" class="score-input" value="${sB}" ${inputState}>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            if(currentUser.isAdmin && jornadasActivas.size > 0) {
-                jornadasActivas.forEach(jName => {
-                    mHtml += `<tr><td colspan="4" style="background: #fef3c7; text-align: center;"><button onclick="window.archivarJornada('${jName}')" style="background: #b45309; color: white; width: auto; padding: 6px 12px; font-size: 12px;">📁 Finalizar y Archivar "${jName}" al Historial</button></td></tr>`;
-                });
-            }
-
-            document.getElementById('pronosticos-list').innerHTML = mHtml + "</table>";
-            
-            let selectHist = document.getElementById('select-jornada-historial');
-            let selectHtml = '<option value="">Selecciona una jornada finalizada...</option>';
-            jornadasArchivadas.forEach(j => {
-                selectHtml += `<option value="${j}">${j}</option>`;
-            });
-            selectHist.innerHTML = selectHtml;
-
-            if(currentUser.isAdmin) {
-                const users = await db.collection("usuarios").get();
-                let uHtml = "<table><tr><th>Nombre</th><th>PIN</th><th>Acción</th></tr>";
-                users.forEach(d => {
-                    let u = d.data();
-                    if(d.id !== "alexis") {
-                        uHtml += `<tr><td>${u.nombre}</td><td><strong>${u.pin}</strong></td><td><button class="btn-delete" onclick="eliminarUsuario('${d.id}','${u.nombre}')">Borrar</button></td></tr>`;
-                    }
-                });
-                document.getElementById('admin-users').innerHTML = uHtml + "</table>";
-            }
-
-            loadTablaPosiciones();
-        }
-
-        async function cargarHistorialJornada() {
-            let jName = document.getElementById('select-jornada-historial').value;
-            let container = document.getElementById('historial-container');
-            if(!jName) {
-                container.innerHTML = "<p style='font-size: 13px; color: #64748b; text-align: center;'>Selecciona una jornada para ver los resultados oficiales.</p>";
-                return;
-            }
-
-            const matches = await db.collection("partidos").get();
-            let h = `<table><tr><th>Partido</th><th>Resultado Oficial</th></tr>`;
-            let hayDatos = false;
-            matches.forEach(d => {
-                let m = d.data();
-                if(m.jornada === jName && m.archivado) {
-                    hayDatos = true;
-                    let res = (m.golesRealA !== null && m.golesRealB !== null) ? `${m.golesRealA} - ${m.golesRealB}` : "Sin registrar";
-                    h += `<tr><td>${m.local} vs ${m.visitante}</td><td><strong>${res}</strong></td></tr>`;
-                }
-            });
-            container.innerHTML = hayDatos ? h + "</table>" : "<p style='font-size: 13px; text-align: center;'>No hay partidos registrados en esta jornada.</p>";
-        }
-
-        async function loadTablaPosiciones() {
-            const snap = await db.collection("usuarios").get();
-            let lista = [];
-            snap.forEach(d => {
-                let u = d.data();
-                if(d.id !== "alexis") lista.push(u);
-            });
-            lista.sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
-
-            let h = "<div class='scroll-leaderboard'><table><tr><th style='width: 60px;'>Puesto</th><th>Participante</th><th style='text-align:center;'>Puntos Acumulados</th></tr>";
-            let puesto = 1;
-            lista.forEach(u => {
-                h += `<tr><td style='font-weight:bold; background:#f1f5f9;'>${puesto}°</td><td>${u.nombre}</td><td style='text-align:center; font-weight:bold; color:#16a34a;'>${u.puntos || 0}</td></tr>`;
-                puesto++;
-            });
-            h += "</table></div>";
-            document.getElementById('leaderboard').innerHTML = h;
-        }
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('app-section').classList.add('hidden');
-            document.getElementById('admin-panel').classList.add('hidden');
-            document.getElementById('auth-section').classList.remove('hidden');
-            document.getElementById('nombreUsuario').value = '';
-            document.getElementById('pass').value = '';
-        }
-
-        // VINCULACIÓN DE BOTONES
-        document.getElementById('btn-login').addEventListener('click', handleLogin);
-        document.getElementById('btn-add-match').addEventListener('click', addMatch);
-        document.getElementById('btn-save-pronos').addEventListener('click', savePronos);
-        document.getElementById('select-jornada-historial').addEventListener('change', cargarHistorialJornada);
-        document.getElementById('btn-logout-top').addEventListener('click', logout);
-        document.getElementById('btn-logout-bottom').addEventListener('click', logout);
-    </script>
 </body>
 </html>
