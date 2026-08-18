@@ -49,7 +49,7 @@
         }
     </style>
 
-    <!-- FIREBASE SDKs (Versión Clásica) -->
+    <!-- FIREBASE SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
@@ -76,7 +76,7 @@
         <div id="app-section" class="hidden">
             <div class="user-bar">
                 <span>Participante: <strong id="user-name-display"></strong></span>
-                <button style="width: auto; padding: 6px 12px; background: var(--danger); color: white;" onclick="logout()">Salir</button>
+                <button id="btn-logout-top" style="width: auto; padding: 6px 12px; background: var(--danger); color: white;">Salir</button>
             </div>
 
             <!-- PANEL ADMINISTRADOR -->
@@ -134,14 +134,14 @@
                 <h2>🏆 Tabla de Posiciones Acumulada</h2>
                 <div id="leaderboard">Cargando tabla...</div>
             </div>
-            <button id="btn-logout" style="background: var(--danger); color: white; font-weight: bold; margin-top: 15px;">Cerrar Sesión</button>
+            <button id="btn-logout-bottom" style="background: var(--danger); color: white; font-weight: bold; margin-top: 15px;">Cerrar Sesión</button>
         </div>
     </div>
 
     <!-- SCRIPT -->
     <script>
         firebase.initializeApp({
-  apiKey: "AIzaSyBoMhjDHec3HoYjeVB3nLqk4YSEfho1haw",
+              apiKey: "AIzaSyBoMhjDHec3HoYjeVB3nLqk4YSEfho1haw",
   authDomain: "quiniela-13212.firebaseapp.com",
   projectId: "quiniela-13212",
   storageBucket: "quiniela-13212.firebasestorage.app",
@@ -438,12 +438,22 @@
             document.getElementById('leaderboard').innerHTML = h + "</table>";
         }
 
-        // VINCULACIÓN LIMPIA DE BOTONES (Evita bloqueos de eventos inline)
+        function logout() {
+            currentUser = null;
+            document.getElementById('app-section').classList.add('hidden');
+            document.getElementById('admin-panel').classList.add('hidden');
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('nombreUsuario').value = '';
+            document.getElementById('pass').value = '';
+        }
+
+        // VINCULACIÓN DE BOTONES
         document.getElementById('btn-login').addEventListener('click', handleLogin);
         document.getElementById('btn-add-match').addEventListener('click', addMatch);
         document.getElementById('btn-save-pronos').addEventListener('click', savePronos);
         document.getElementById('select-jornada-historial').addEventListener('change', cargarHistorialJornada);
-        document.getElementById('btn-logout').addEventListener('click', () => location.reload());
+        document.getElementById('btn-logout-top').addEventListener('click', logout);
+        document.getElementById('btn-logout-bottom').addEventListener('click', logout);
     </script>
 </body>
 </html>
