@@ -48,6 +48,10 @@
             font-weight: bold;
         }
     </style>
+
+    <!-- FIREBASE SDKs (Versión Clásica) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <div class="container">
@@ -62,7 +66,7 @@
             <h2>Ingresar a la Quiniela</h2>
             <input type="text" id="nombreUsuario" placeholder="Tu Nombre o Apodo">
             <input type="password" id="pass" placeholder="PIN secreto">
-            <button onclick="handleLogin()" style="background: var(--accent); color: white; font-weight: bold;">Entrar / Registrarse</button>
+            <button id="btn-login" style="background: var(--accent); color: white; font-weight: bold;">Entrar / Registrarse</button>
             <div class="help-text">
                 💡 ¿Olvidaste tu PIN? Comunícate con el administrador (Alexis).
             </div>
@@ -85,7 +89,7 @@
                     <input type="time" id="hora">
                     <input type="text" id="local" placeholder="Equipo Local">
                     <input type="text" id="visitante" placeholder="Equipo Visitante">
-                    <button onclick="addMatch()" style="background: #d97706; color: white; font-weight: bold;">Cargar Partido</button>
+                    <button id="btn-add-match" style="background: #d97706; color: white; font-weight: bold;">Cargar Partido</button>
                 </div>
                 <h3>Gestión de Participantes (Scroll)</h3>
                 <div class="scroll-list" id="admin-users"></div>
@@ -109,14 +113,14 @@
             <div class="card">
                 <h2>Jornada Actual - Pronósticos y Resultados</h2>
                 <div id="pronosticos-list">Cargando partidos...</div>
-                <button onclick="savePronos()" style="margin-top: 15px; background: #2563eb; color: white; font-weight: bold;">💾 Guardar Mis Pronósticos</button>
+                <button id="btn-save-pronos" style="margin-top: 15px; background: #2563eb; color: white; font-weight: bold;">💾 Guardar Mis Pronósticos</button>
             </div>
 
-            <!-- HISTORIAL DE JORNADAS (NUEVO) -->
+            <!-- HISTORIAL DE JORNADAS -->
             <div class="card" style="background: #e2e8f0;">
                 <h2>📁 Historial de Resultados Anteriores</h2>
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <select id="select-jornada-historial" onchange="cargarHistorialJornada()">
+                    <select id="select-jornada-historial">
                         <option value="">Selecciona una jornada finalizada...</option>
                     </select>
                 </div>
@@ -130,56 +134,56 @@
                 <h2>🏆 Tabla de Posiciones Acumulada</h2>
                 <div id="leaderboard">Cargando tabla...</div>
             </div>
-            <button onclick="logout()" style="background: var(--danger); color: white; font-weight: bold; margin-top: 15px;">Cerrar Sesión</button>
+            <button id="btn-logout" style="background: var(--danger); color: white; font-weight: bold; margin-top: 15px;">Cerrar Sesión</button>
         </div>
     </div>
 
     <!-- SCRIPT -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const db = getFirestore(initializeApp({
-          apiKey: "AIzaSyBoMhjDHec3HoYjeVB3nLqk4YSEfho1haw",
+    <script>
+        firebase.initializeApp({
+  apiKey: "AIzaSyBoMhjDHec3HoYjeVB3nLqk4YSEfho1haw",
   authDomain: "quiniela-13212.firebaseapp.com",
   projectId: "quiniela-13212",
   storageBucket: "quiniela-13212.firebasestorage.app",
   messagingSenderId: "940138734007",
   appId: "1:940138734007:web:c584e4851eef0c3f8cc832",
   measurementId: "G-XG4P1DCBLT"
-        }));
+        });
 
+        const db = firebase.firestore();
         let currentUser = null;
 
-        window.handleLogin = async () => {
+        async function handleLogin() {
             let n = document.getElementById('nombreUsuario').value.trim();
             let p = document.getElementById('pass').value.trim();
-            if(!n || !p) return alert("Completa los campos.");
+            if(!n || !p) return alert("Por favor completa tu nombre y tu PIN.");
             
             let id = n.toLowerCase().replace(/\s+/g,'');
             let isAdmin = (n.toLowerCase() === "alexis" && p === "admin123");
             
             try {
-                const ref = doc(db, "usuarios", id);
-                const snap = await getDoc(ref);
+                const ref = db.collection("usuarios").doc(id);
+                const snap = await ref.get();
                 
-                if(snap.exists()) {
+                if(snap.exists) {
                     if(snap.data().pin !== p && !isAdmin) return alert("PIN incorrecto para este nombre.");
                     currentUser = {id, nombre: snap.data().nombre, isAdmin: isAdmin || snap.data().isAdmin};
                 } else {
                     if(id === "alexis" && !isAdmin) return alert("PIN de admin incorrecto.");
                     currentUser = {id, nombre: n, isAdmin};
-                    await setDoc(ref, {nombre: n, pin: p, puntos: 0, isAdmin});
+                    await ref.set({nombre: n, pin: p, puntos: 0, isAdmin});
                 }
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('app-section').classList.remove('hidden');
                 if(currentUser.isAdmin) document.getElementById('admin-panel').classList.remove('hidden');
                 document.getElementById('user-name-display').innerText = currentUser.nombre;
                 loadData();
-            } catch(e) { alert("Error: " + e.message); }
-        };
+            } catch(e) { 
+                alert("Error de conexión: " + e.message); 
+            }
+        }
 
-        window.addMatch = async () => {
+        async function addMatch() {
             let jornada = document.getElementById('jornada').value.trim();
             let fecha = document.getElementById('fecha').value;
             let hora = document.getElementById('hora').value;
@@ -188,7 +192,7 @@
 
             if(!local || !visitante || !fecha || !hora) return alert("Completa todos los datos del partido.");
 
-            await addDoc(collection(db, "partidos"), {
+            await db.collection("partidos").add({
                 jornada: jornada || "Jornada General",
                 fecha: fecha,
                 hora: hora,
@@ -202,18 +206,18 @@
             document.getElementById('local').value = '';
             document.getElementById('visitante').value = '';
             loadData();
-        };
+        }
 
-        window.eliminarUsuario = async (id, name) => {
+        async function eliminarUsuario(id, name) {
             if(confirm(`¿Borrar al participante ${name}?`)) {
-                await deleteDoc(doc(db, "usuarios", id));
-                await deleteDoc(doc(db, "pronosticos", id));
+                await db.collection("usuarios").doc(id).delete();
+                await db.collection("pronosticos").doc(id).delete();
                 loadData();
             }
-        };
+        }
 
-        window.savePronos = async () => {
-            const matches = await getDocs(collection(db, "partidos"));
+        async function savePronos() {
+            const matches = await db.collection("partidos").get();
             let pronos = {};
             let ahora = new Date();
 
@@ -233,14 +237,14 @@
             });
 
             try {
-                await setDoc(doc(db, "pronosticos", currentUser.id), {
+                await db.collection("pronosticos").doc(currentUser.id).set({
                     nombre: currentUser.nombre,
                     partidos: pronos
                 }, { merge: true });
                 alert("¡Pronósticos guardados con éxito!");
                 loadTablaPosiciones();
             } catch(e) { alert("Error al guardar pronósticos: " + e.message); }
-        };
+        }
 
         window.guardarResultadoReal = async (matchId) => {
             let rA = document.getElementById(`realA_${matchId}`).value;
@@ -249,9 +253,9 @@
 
             let gRealA = parseInt(rA), gRealB = parseInt(rB);
             try {
-                await updateDoc(doc(db, "partidos", matchId), { golesRealA: gRealA, golesRealB: gRealB });
+                await db.collection("partidos").doc(matchId).update({ golesRealA: gRealA, golesRealB: gRealB });
 
-                const pronosticosSnap = await getDocs(collection(db, "pronosticos"));
+                const pronosticosSnap = await db.collection("pronosticos").get();
                 pronosticosSnap.forEach(async (pDoc) => {
                     let uId = pDoc.id;
                     let pData = pDoc.data().partidos || {};
@@ -269,21 +273,21 @@
                         else if ((gRealA > gRealB && gA_p > gB_p) || (gRealA < gRealB && gA_p < gB_p)) pts = 1;
 
                         pData[matchId].puntosObtenidos = pts;
-                        await updateDoc(doc(db, "pronosticos", uId), { partidos: pData });
+                        await db.collection("pronosticos").doc(uId).update({ partidos: pData });
                     }
                 });
 
                 setTimeout(async () => {
-                    const usersSnap = await getDocs(collection(db, "usuarios"));
+                    const usersSnap = await db.collection("usuarios").get();
                     for(let uDoc of usersSnap.docs) {
                         let uId = uDoc.id;
-                        let pDoc = await getDoc(doc(db, "pronosticos", uId));
+                        let pDoc = await db.collection("pronosticos").doc(uId).get();
                         let total = 0;
-                        if(pDoc.exists()) {
+                        if(pDoc.exists) {
                             let parts = pDoc.data().partidos || {};
                             for(let m in parts) total += (parts[m].puntosObtenidos || 0);
                         }
-                        await updateDoc(doc(db, "usuarios", uId), { puntos: total });
+                        await db.collection("usuarios").doc(uId).update({ puntos: total });
                     }
                     alert("¡Resultado guardado y puntos recalculados!");
                     loadData();
@@ -291,13 +295,12 @@
             } catch(e) { alert("Error al procesar resultado: " + e.message); }
         };
 
-        // FUNCIÓN DE ADMINISTRADOR PARA ARCHIVAR JORNADA (MANDAR AL HISTORIAL)
         window.archivarJornada = async (nombreJornada) => {
-            if(confirm(`¿Estás seguro de finalizar y archivar toda la "${nombreJornada}"? Los puntos ya sumados se conservarán en la tabla acumulada.`)) {
-                const matches = await getDocs(collection(db, "partidos"));
+            if(confirm(`¿Estás seguro de finalizar y archivar toda la "${nombreJornada}"?`)) {
+                const matches = await db.collection("partidos").get();
                 for(let d of matches.docs) {
                     if(d.data().jornada === nombreJornada) {
-                        await updateDoc(doc(db, "partidos", d.id), { archivado: true });
+                        await db.collection("partidos").doc(d.id).update({ archivado: true });
                     }
                 }
                 alert(`¡${nombreJornada} archivada con éxito al historial!`);
@@ -306,9 +309,9 @@
         };
 
         async function loadData() {
-            const matches = await getDocs(collection(db, "partidos"));
-            const pDoc = await getDoc(doc(db, "pronosticos", currentUser.id));
-            let userPronos = pDoc.exists() ? pDoc.data().partidos || {} : {};
+            const matches = await db.collection("partidos").get();
+            const pDoc = await db.collection("pronosticos").doc(currentUser.id).get();
+            let userPronos = pDoc.exists ? pDoc.data().partidos || {} : {};
             let ahora = new Date();
 
             let mHtml = "<table><tr><th>Jornada</th><th>Fecha/Hora</th><th>Partido</th><th>Pronóstico</th></tr>";
@@ -321,7 +324,7 @@
 
                 if(m.archivado) {
                     jornadasArchivadas.add(m.jornada);
-                    return; // No se muestran en la jornada actual
+                    return;
                 }
 
                 jornadasActivas.add(m.jornada);
@@ -367,16 +370,14 @@
                 `;
             });
 
-            // Si eres admin, añadimos un botón para archivar cada jornada activa
             if(currentUser.isAdmin && jornadasActivas.size > 0) {
                 jornadasActivas.forEach(jName => {
                     mHtml += `<tr><td colspan="4" style="background: #fef3c7; text-align: center;"><button onclick="window.archivarJornada('${jName}')" style="background: #b45309; color: white; width: auto; padding: 6px 12px; font-size: 12px;">📁 Finalizar y Archivar "${jName}" al Historial</button></td></tr>`;
                 });
             }
 
-            document.getElementById('pronosticos-list'].innerHTML = mHtml + "</table>";
+            document.getElementById('pronosticos-list').innerHTML = mHtml + "</table>";
             
-            // Poblar el selector de historial
             let selectHist = document.getElementById('select-jornada-historial');
             let selectHtml = '<option value="">Selecciona una jornada finalizada...</option>';
             jornadasArchivadas.forEach(j => {
@@ -385,7 +386,7 @@
             selectHist.innerHTML = selectHtml;
 
             if(currentUser.isAdmin) {
-                const users = await getDocs(collection(db, "usuarios"));
+                const users = await db.collection("usuarios").get();
                 let uHtml = "<table><tr><th>Nombre</th><th>PIN</th><th>Acción</th></tr>";
                 users.forEach(d => {
                     let u = d.data();
@@ -399,8 +400,7 @@
             loadTablaPosiciones();
         }
 
-        // CARGAR HISTORIAL DE UNA JORNADA ARCHIVADA
-        window.cargarHistorialJornada = async () => {
+        async function cargarHistorialJornada() {
             let jName = document.getElementById('select-jornada-historial').value;
             let container = document.getElementById('historial-container');
             if(!jName) {
@@ -408,7 +408,7 @@
                 return;
             }
 
-            const matches = await getDocs(collection(db, "partidos"));
+            const matches = await db.collection("partidos").get();
             let h = `<table><tr><th>Partido</th><th>Resultado Oficial</th></tr>`;
             let hayDatos = false;
             matches.forEach(d => {
@@ -420,10 +420,10 @@
                 }
             });
             container.innerHTML = hayDatos ? h + "</table>" : "<p style='font-size: 13px; text-align: center;'>No hay partidos registrados en esta jornada.</p>";
-        };
+        }
 
         async function loadTablaPosiciones() {
-            const snap = await getDocs(collection(db, "usuarios"));
+            const snap = await db.collection("usuarios").get();
             let lista = [];
             snap.forEach(d => {
                 let u = d.data();
@@ -438,7 +438,12 @@
             document.getElementById('leaderboard').innerHTML = h + "</table>";
         }
 
-        window.logout = () => location.reload();
+        // VINCULACIÓN LIMPIA DE BOTONES (Evita bloqueos de eventos inline)
+        document.getElementById('btn-login').addEventListener('click', handleLogin);
+        document.getElementById('btn-add-match').addEventListener('click', addMatch);
+        document.getElementById('btn-save-pronos').addEventListener('click', savePronos);
+        document.getElementById('select-jornada-historial').addEventListener('change', cargarHistorialJornada);
+        document.getElementById('btn-logout').addEventListener('click', () => location.reload());
     </script>
 </body>
 </html>
