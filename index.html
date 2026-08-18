@@ -23,6 +23,7 @@
         .help-text { text-align: center; font-size: 12px; color: #64748b; margin-top: 10px; }
         .rules-box { background: #e0f2fe; border: 1px solid #bae6fd; padding: 10px 15px; border-radius: 6px; font-size: 12px; color: #0369a1; margin-bottom: 15px; }
         .rules-box ul { margin: 5px 0 0 20px; padding: 0; }
+        .scroll-leaderboard { max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px; }
         
         .hero-banner {
             background: linear-gradient(135deg, #0f172a, #1e293b);
@@ -141,13 +142,12 @@
     <!-- SCRIPT -->
     <script>
         firebase.initializeApp({
-              apiKey: "AIzaSyBoMhjDHec3HoYjeVB3nLqk4YSEfho1haw",
-  authDomain: "quiniela-13212.firebaseapp.com",
-  projectId: "quiniela-13212",
-  storageBucket: "quiniela-13212.firebasestorage.app",
-  messagingSenderId: "940138734007",
-  appId: "1:940138734007:web:c584e4851eef0c3f8cc832",
-  measurementId: "G-XG4P1DCBLT"
+            apiKey: "AIzaSyBoMhJDHec3HOyJeVB3nLqk4YSEfho1haw",
+            authDomain: "quiniela-13212.firebaseapp.com",
+            projectId: "quiniela-13212",
+            storageBucket: "quiniela-13212.firebasestorage.app",
+            messagingSenderId: "940138734007",
+            appId: "1:940138734007:web:c584e4851eel0c3f8cc832"
         });
 
         const db = firebase.firestore();
@@ -431,11 +431,14 @@
             });
             lista.sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
 
-            let h = "<table><tr><th>Participante</th><th style='text-align:center;'>Puntos Acumulados</th></tr>";
+            let h = "<div class='scroll-leaderboard'><table><tr><th style='width: 60px;'>Puesto</th><th>Participante</th><th style='text-align:center;'>Puntos Acumulados</th></tr>";
+            let puesto = 1;
             lista.forEach(u => {
-                h += `<tr><td>${u.nombre}</td><td style='text-align:center; font-weight:bold; color:#16a34a;'>${u.puntos || 0}</td></tr>`;
+                h += `<tr><td style='font-weight:bold; background:#f1f5f9;'>${puesto}°</td><td>${u.nombre}</td><td style='text-align:center; font-weight:bold; color:#16a34a;'>${u.puntos || 0}</td></tr>`;
+                puesto++;
             });
-            document.getElementById('leaderboard').innerHTML = h + "</table>";
+            h += "</table></div>";
+            document.getElementById('leaderboard').innerHTML = h;
         }
 
         function logout() {
