@@ -3,49 +3,58 @@
 <head>
     <meta charset="UTF-8">
 <link rel="manifest" href="manifest.json">
-    <title>Quiniela Deportiva - App Oficial</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiniela Deportiva - Móvil</title>
     <style>
-        :root { --primary: #0f172a; --accent: #22c55e; --bg: #f8fafc; --danger: #ef4444; }
-        body { font-family: sans-serif; background: var(--bg); padding: 20px; }
-        .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        :root { --primary: #0f172a; --accent: #22c55e; --bg: #f1f5f9; --danger: #ef4444; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #1e293b; }
+        .container { max-width: 480px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
         .hidden { display: none !important; }
-        .card { background: #f1f5f9; padding: 15px; margin: 15px 0; border-radius: 8px; }
+        .card { background: #f8fafc; padding: 12px; margin: 12px 0; border-radius: 10px; border: 1px solid #e2e8f0; }
         .admin-section { border: 2px solid #f59e0b; background: #fffbeb; }
-        input, button, select { padding: 8px; margin: 5px 0; border-radius: 4px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
-        .btn-delete { background: var(--danger); color: white; border: none; padding: 4px 8px; font-size: 11px; cursor: pointer; }
-        .scroll-list { max-height: 220px; overflow-y: auto; background: white; border: 1px solid #ddd; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 5px; }
-        th, td { padding: 8px; border: 1px solid #e2e8f0; text-align: center; }
+        input, button, select { padding: 10px; margin: 6px 0; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%; box-sizing: border-box; font-size: 15px; }
+        button { font-weight: bold; cursor: pointer; border: none; }
+        .btn-delete { background: var(--danger); color: white; padding: 6px 10px; font-size: 12px; width: auto; }
+        .scroll-list { max-height: 200px; overflow-y: auto; background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 5px; }
+        th, td { padding: 6px; border: 1px solid #e2e8f0; text-align: center; }
         th { background: #0f172a; color: white; }
-        .user-bar { display: flex; justify-content: space-between; align-items: center; background: #e2e8f0; padding: 10px 15px; border-radius: 6px; margin-bottom: 20px; }
-        .score-input { width: 40px; text-align: center; padding: 4px; }
-        .admin-result-box { background: #fef3c7; border: 1px dashed #f59e0b; padding: 6px; margin-top: 5px; border-radius: 4px; font-size: 12px; }
-        .closed-badge { color: #ef4444; font-weight: bold; font-size: 11px; }
+        .user-bar { display: flex; justify-content: space-between; align-items: center; background: #e2e8f0; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+        
+        /* ESTILO MÓVIL PARA LOS PARTIDOS */
+        .match-card { background: white; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .match-header { font-size: 11px; font-weight: bold; color: #64748b; text-align: center; margin-bottom: 8px; text-transform: uppercase; }
+        .team-row { display: flex; justify-content: space-between; align-items: center; margin: 6px 0; font-size: 14px; font-weight: 600; }
+        .score-input { width: 50px; height: 40px; text-align: center; font-size: 18px; font-weight: bold; padding: 0; }
+        
+        .admin-result-box { background: #fef3c7; border: 1px dashed #f59e0b; padding: 8px; margin-top: 8px; border-radius: 6px; font-size: 12px; display: flex; gap: 5px; align-items: center; }
+        .closed-badge { color: #ef4444; font-weight: bold; font-size: 11px; text-align: center; display: block; margin-top: 5px; }
         .help-text { text-align: center; font-size: 12px; color: #64748b; margin-top: 10px; }
-        .rules-box { background: #e0f2fe; border: 1px solid #bae6fd; padding: 10px 15px; border-radius: 6px; font-size: 12px; color: #0369a1; margin-bottom: 15px; }
-        .rules-box ul { margin: 5px 0 0 20px; padding: 0; }
-        .scroll-leaderboard { max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px; }
+        
+        .rules-box { background: #e0f2fe; border: 1px solid #bae6fd; padding: 10px; border-radius: 8px; font-size: 12px; color: #0369a1; margin-bottom: 12px; }
+        .rules-box ul { margin: 4px 0 0 15px; padding: 0; }
+        .scroll-leaderboard { max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; }
         
         .hero-banner {
             background: linear-gradient(135deg, #0f172a, #1e293b);
             color: white;
             text-align: center;
-            padding: 25px 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 18px 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .hero-banner h1 { margin: 0 0 5px 0; font-size: 24px; color: #22c55e; }
-        .hero-banner p { margin: 0; font-size: 13px; color: #94a3b8; }
+        .hero-banner h1 { margin: 0 0 4px 0; font-size: 20px; color: #22c55e; }
+        .hero-banner p { margin: 0; font-size: 12px; color: #94a3b8; }
         
         .notification-banner {
             background: #fef08a;
             border: 1px solid #facc15;
             color: #854d0e;
-            padding: 10px;
+            padding: 8px;
             border-radius: 6px;
-            font-size: 12px;
-            margin-bottom: 15px;
+            font-size: 11px;
+            margin-bottom: 12px;
             text-align: center;
             font-weight: bold;
         }
@@ -59,18 +68,18 @@
     <div class="container">
         <!-- BANNER -->
         <div class="hero-banner">
-            <h1>⚽ QUINIELA DEPORTIVA</h1>
-            <p>¡Diviértete entre amigos pronosticando y compitiendo!</p>
+            <h1>⚽ QUINIELA MÓVIL</h1>
+            <p>¡Diviértete pronosticando entre amigos!</p>
         </div>
         
         <!-- LOGIN -->
         <div id="auth-section" class="card">
-            <h2>Ingresar a la Quiniela</h2>
+            <h2>Ingresar</h2>
             <input type="text" id="nombreUsuario" placeholder="Tu Nombre o Apodo">
             <input type="password" id="pass" placeholder="PIN secreto">
-            <button id="btn-login" style="background: var(--accent); color: white; font-weight: bold;">Entrar / Registrarse</button>
+            <button id="btn-login" style="background: var(--accent); color: white;">Entrar / Registrarse</button>
             <div class="help-text">
-                💡 ¿Olvidaste tu PIN? Comunícate con el administrador (Alexis).
+                💡 ¿Olvidaste tu PIN? Comunícate con Alexis.
             </div>
         </div>
 
@@ -78,22 +87,22 @@
         <div id="app-section" class="hidden">
             <div class="user-bar">
                 <span>Participante: <strong id="user-name-display"></strong></span>
-                <button id="btn-logout-top" style="width: auto; padding: 6px 12px; background: var(--danger); color: white;">Salir</button>
+                <button id="btn-logout-top" style="width: auto; padding: 6px 10px; background: var(--danger); color: white; font-size: 12px; margin:0;">Salir</button>
             </div>
 
             <!-- PANEL ADMINISTRADOR -->
             <div id="admin-panel" class="card admin-section hidden">
-                <h2>👑 PANEL ADMINISTRADOR</h2>
+                <h2>👑 PANEL ADMIN</h2>
                 <div class="card">
-                    <h3>Cargar Nuevo Partido</h3>
-                    <input type="text" id="jornada" placeholder="Jornada (ej. JORNADA 5)">
+                    <h3>Cargar Partido</h3>
+                    <input type="text" id="jornada" placeholder="Jornada (ej. JORNADA 1)">
                     <input type="date" id="fecha">
                     <input type="time" id="hora">
                     <input type="text" id="local" placeholder="Equipo Local">
                     <input type="text" id="visitante" placeholder="Equipo Visitante">
-                    <button id="btn-add-match" style="background: #d97706; color: white; font-weight: bold;">Cargar Partido</button>
+                    <button id="btn-add-match" style="background: #d97706; color: white;">Cargar Partido</button>
                 </div>
-                <h3>Gestión de Participantes (Scroll)</h3>
+                <h3>Participantes</h3>
                 <div class="scroll-list" id="admin-users"></div>
             </div>
 
@@ -101,49 +110,47 @@
             <div class="rules-box">
                 <strong>📋 Reglas de Puntuación:</strong>
                 <ul>
-                    <li><strong>5 Puntos:</strong> Marcador exacto.</li>
-                    <li><strong>3 Puntos:</strong> Empate acertado o ganador con diferencia de goles correcta.</li>
-                    <li><strong>1 Punto:</strong> Acertar solo el ganador (sin la diferencia).</li>
+                    <li><strong>5 Pts:</strong> Marcador exacto.</li>
+                    <li><strong>3 Pts:</strong> Empate o diferencia correcta.</li>
+                    <li><strong>1 Pt:</strong> Acertar solo el ganador.</li>
                 </ul>
             </div>
 
             <div class="notification-banner">
-                🔔 <strong>Aviso Importante:</strong> Guarda tus pronósticos antes de que inicie cada encuentro. Los partidos se bloquean automáticamente al llegar su hora.
+                🔔 Los partidos se bloquean automáticamente al llegar su hora de inicio.
             </div>
 
             <!-- JORNADA ACTUAL -->
             <div class="card">
-                <h2>Jornada Actual - Pronósticos y Resultados</h2>
+                <h2 style="margin-top:0; font-size: 16px;">Jornada Actual</h2>
                 <div id="pronosticos-list">Cargando partidos...</div>
-                <button id="btn-save-pronos" style="margin-top: 15px; background: #2563eb; color: white; font-weight: bold;">💾 Guardar Mis Pronósticos</button>
+                <button id="btn-save-pronos" style="margin-top: 10px; background: #2563eb; color: white; font-size: 15px;">💾 Guardar Mis Pronósticos</button>
             </div>
 
-            <!-- HISTORIAL DE JORNADAS -->
+            <!-- HISTORIAL -->
             <div class="card" style="background: #e2e8f0;">
-                <h2>📁 Historial de Resultados Anteriores</h2>
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <select id="select-jornada-historial">
-                        <option value="">Selecciona una jornada finalizada...</option>
-                    </select>
-                </div>
-                <div id="historial-container">
-                    <p style="font-size: 13px; color: #64748b; text-align: center;">Selecciona una jornada para ver los resultados oficiales y puntos otorgados.</p>
+                <h2 style="margin-top:0; font-size: 16px;">📁 Historial de Resultados</h2>
+                <select id="select-jornada-historial">
+                    <option value="">Selecciona jornada finalizada...</option>
+                </select>
+                <div id="historial-container" style="margin-top: 8px;">
+                    <p style="font-size: 11px; color: #64748b; text-align: center;">Selecciona para ver resultados oficiales.</p>
                 </div>
             </div>
 
             <!-- TABLA DE POSICIONES -->
             <div class="card">
-                <h2>🏆 Tabla de Posiciones Acumulada</h2>
+                <h2 style="margin-top:0; font-size: 16px;">🏆 Tabla Acumulada</h2>
                 <div id="leaderboard">Cargando tabla...</div>
             </div>
-            <button id="btn-logout-bottom" style="background: var(--danger); color: white; font-weight: bold; margin-top: 15px;">Cerrar Sesión</button>
+            <button id="btn-logout-bottom" style="background: var(--danger); color: white; margin-top: 10px;">Cerrar Sesión</button>
         </div>
     </div>
 
     <!-- SCRIPT -->
     <script>
         firebase.initializeApp({
-         apiKey: "AIzaSyBoMhjDHec3HoYjeVB3nLqk4YSEfho1haw",
+            apiKey: "AIzaSyBoMhjDHec3HoYjeVB3nLqk4YSEfho1haw",
   authDomain: "quiniela-13212.firebaseapp.com",
   projectId: "quiniela-13212",
   storageBucket: "quiniela-13212.firebasestorage.app",
@@ -316,7 +323,7 @@
             let userPronos = pDoc.exists ? pDoc.data().partidos || {} : {};
             let ahora = new Date();
 
-            let mHtml = "<table><tr><th>Jornada</th><th>Fecha/Hora</th><th>Partido</th><th>Pronóstico</th></tr>";
+            let mHtml = "";
             let jornadasArchivadas = new Set();
             let jornadasActivas = new Set();
 
@@ -341,7 +348,7 @@
                 }
 
                 let inputState = partidoCerrado ? "disabled style='background:#e2e8f0; color:#64748b;'" : "";
-                let estadoTexto = partidoCerrado ? "<br><span class='closed-badge'>🔒 Cerrado</span>" : "";
+                let estadoTexto = partidoCerrado ? "<span class='closed-badge'>🔒 Pronósticos Cerrados</span>" : "";
 
                 let adminBox = "";
                 if(currentUser.isAdmin) {
@@ -349,39 +356,43 @@
                     let rB = m.golesRealB ?? '';
                     adminBox = `
                         <div class="admin-result-box">
-                            Resultado Oficial: 
-                            <input type="number" min="0" id="realA_${mId}" class="score-input" value="${rA}"> - 
-                            <input type="number" min="0" id="realB_${mId}" class="score-input" value="${rB}">
-                            <button onclick="window.guardarResultadoReal('${mId}')" style="margin-top:4px; background:#d97706; color:white; padding:4px; font-size:11px;">⚡ Calcular</button>
+                            <span>Oficial:</span>
+                            <input type="number" min="0" id="realA_${mId}" class="score-input" style="width:40px; height:32px; font-size:14px;" value="${rA}"> - 
+                            <input type="number" min="0" id="realB_${mId}" class="score-input" style="width:40px; height:32px; font-size:14px;" value="${rB}">
+                            <button onclick="window.guardarResultadoReal('${mId}')" style="background:#d97706; color:white; padding:6px; font-size:11px; width:auto; margin:0;">⚡</button>
                         </div>
                     `;
                 } else if(m.golesRealA !== null && m.golesRealA !== undefined) {
-                    adminBox = `<div style="color: #16a34a; font-size: 11px; margin-top: 3px;">Oficial: ${m.golesRealA} - ${m.golesRealB}</div>`;
+                    adminBox = `<div style="color: #16a34a; font-size: 12px; font-weight: bold; text-align: center; margin-top: 4px;">Resultado Oficial: ${m.golesRealA} - ${m.golesRealB}</div>`;
                 }
 
                 mHtml += `
-                    <tr>
-                        <td>${m.jornada || ''}</td>
-                        <td>${m.fecha || ''} ${m.hora || ''} ${estadoTexto}</td>
-                        <td><strong>${m.local} vs ${m.visitante}</strong>${adminBox}</td>
-                        <td>
-                            <input type="number" min="0" id="pronA_${mId}" class="score-input" value="${sA}" ${inputState}> - 
+                    <div class="match-card">
+                        <div class="match-header">${m.jornada || ''} • ${m.fecha || ''} ${m.hora || ''}</div>
+                        <div class="team-row">
+                            <span>${m.local}</span>
+                            <input type="number" min="0" id="pronA_${mId}" class="score-input" value="${sA}" ${inputState}>
+                        </div>
+                        <div class="team-row">
+                            <span>${m.visitante}</span>
                             <input type="number" min="0" id="pronB_${mId}" class="score-input" value="${sB}" ${inputState}>
-                        </td>
-                    </tr>
+                        </div>
+                        ${estadoTexto}
+                        ${adminBox}
+                    </div>
                 `;
             });
 
             if(currentUser.isAdmin && jornadasActivas.size > 0) {
                 jornadasActivas.forEach(jName => {
-                    mHtml += `<tr><td colspan="4" style="background: #fef3c7; text-align: center;"><button onclick="window.archivarJornada('${jName}')" style="background: #b45309; color: white; width: auto; padding: 6px 12px; font-size: 12px;">📁 Finalizar y Archivar "${jName}" al Historial</button></td></tr>`;
+                    mHtml += `<div style="text-align: center; margin: 10px 0;"><button onclick="window.archivarJornada('${jName}')" style="background: #b45309; color: white; padding: 8px; font-size: 12px; width:100%;">📁 Finalizar y Archivar "${jName}"</button></div>`;
                 });
             }
 
-            document.getElementById('pronosticos-list').innerHTML = mHtml + "</table>";
+            document.getElementById('pronosticos-list').innerHTML = mHtml || "<p style='text-align:center; color:#64748b;'>No hay partidos activos.</p>";
             
             let selectHist = document.getElementById('select-jornada-historial');
-            let selectHtml = '<option value="">Selecciona una jornada finalizada...</option>';
+            let selectHtml = '<option value="">Selecciona jornada finalizada...</option>';
             jornadasArchivadas.forEach(j => {
                 selectHtml += `<option value="${j}">${j}</option>`;
             });
@@ -406,12 +417,12 @@
             let jName = document.getElementById('select-jornada-historial').value;
             let container = document.getElementById('historial-container');
             if(!jName) {
-                container.innerHTML = "<p style='font-size: 13px; color: #64748b; text-align: center;'>Selecciona una jornada para ver los resultados oficiales.</p>";
+                container.innerHTML = "<p style='font-size: 11px; color: #64748b; text-align: center;'>Selecciona para ver resultados oficiales.</p>";
                 return;
             }
 
             const matches = await db.collection("partidos").get();
-            let h = `<table><tr><th>Partido</th><th>Resultado Oficial</th></tr>`;
+            let h = `<table><tr><th>Partido</th><th>Resultado</th></tr>`;
             let hayDatos = false;
             matches.forEach(d => {
                 let m = d.data();
@@ -421,7 +432,7 @@
                     h += `<tr><td>${m.local} vs ${m.visitante}</td><td><strong>${res}</strong></td></tr>`;
                 }
             });
-            container.innerHTML = hayDatos ? h + "</table>" : "<p style='font-size: 13px; text-align: center;'>No hay partidos registrados en esta jornada.</p>";
+            container.innerHTML = hayDatos ? h + "</table>" : "<p style='font-size: 11px; text-align: center;'>No hay partidos en esta jornada.</p>";
         }
 
         async function loadTablaPosiciones() {
@@ -433,7 +444,7 @@
             });
             lista.sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
 
-            let h = "<div class='scroll-leaderboard'><table><tr><th style='width: 60px;'>Puesto</th><th>Participante</th><th style='text-align:center;'>Puntos Acumulados</th></tr>";
+            let h = "<div class='scroll-leaderboard'><table><tr><th style='width: 45px;'>Pto</th><th>Participante</th><th style='text-align:center;'>Pts</th></tr>";
             let puesto = 1;
             lista.forEach(u => {
                 h += `<tr><td style='font-weight:bold; background:#f1f5f9;'>${puesto}°</td><td>${u.nombre}</td><td style='text-align:center; font-weight:bold; color:#16a34a;'>${u.puntos || 0}</td></tr>`;
