@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiniela Deportiva - App Oficial</title>
+    <style>
+        :root { --primary: #0f172a; --accent: #22c55e; --bg: #f8fafc; --danger: #ef4444; }
+        body { font-family: sans-serif; background: var(--bg); padding: 20px; }
+        .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .hidden { display: none !important; }
+        .card { background: #f1f5f9; padding: 15px; margin: 15px 0; border-radius: 8px; }
+        .admin-section { border: 2px solid #f59e0b; background: #fffbeb; }
+        input, button, select { padding: 8px; margin: 5px 0; border-radius: 4px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
+        .btn-delete { background: var(--danger); color: white; border: none; padding: 4px 8px; font-size: 11px; cursor: pointer; }
+        .scroll-list { max-height: 220px; overflow-y: auto; background: white; border: 1px solid #ddd; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 5px; }
+        th, td { padding: 8px; border: 1px solid #e2e8f0; text-align: center; }
+        th { background: #0f172a; color: white; }
+        .user-bar { display: flex; justify-content: space-between; align-items: center; background: #e2e8f0; padding: 10px 15px; border-radius: 6px; margin-bottom: 20px; }
+        .score-input { width: 40px; text-align: center; padding: 4px; }
+        .admin-result-box { background: #fef3c7; border: 1px dashed #f59e0b; padding: 6px; margin-top: 5px; border-radius: 4px; font-size: 12px; }
+        .closed-badge { color: #ef4444; font-weight: bold; font-size: 11px; }
+        .help-text { text-align: center; font-size: 12px; color: #64748b; margin-top: 10px; }
+        .rules-box { background: #e0f2fe; border: 1px solid #bae6fd; padding: 10px 15px; border-radius: 6px; font-size: 12px; color: #0369a1; margin-bottom: 15px; }
+        .rules-box ul { margin: 5px 0 0 20px; padding: 0; }
+        
+        .hero-banner {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            text-align: center;
+            padding: 25px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .hero-banner h1 { margin: 0 0 5px 0; font-size: 24px; color: #22c55e; }
+        .hero-banner p { margin: 0; font-size: 13px; color: #94a3b8; }
+        
+        .notification-banner {
+            background: #fef08a;
+            border: 1px solid #facc15;
+            color: #854d0e;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- BANNER -->
+        <div class="hero-banner">
+            <h1>⚽ QUINIELA DEPORTIVA</h1>
+            <p>¡Diviértete entre amigos pronosticando y compitiendo!</p>
+        </div>
+        
+        <!-- LOGIN -->
+        <div id="auth-section" class="card">
+            <h2>Ingresar a la Quiniela</h2>
+            <input type="text" id="nombreUsuario" placeholder="Tu Nombre o Apodo">
+            <input type="password" id="pass" placeholder="PIN secreto">
+            <button onclick="handleLogin()" style="background: var(--accent); color: white; font-weight: bold;">Entrar / Registrarse</button>
+            <div class="help-text">
+                💡 ¿Olvidaste tu PIN? Comunícate con el administrador (Alexis).
+            </div>
+        </div>
+
+        <!-- APP PRINCIPAL -->
+        <div id="app-section" class="hidden">
+            <div class="user-bar">
+                <span>Participante: <strong id="user-name-display"></strong></span>
+                <button style="width: auto; padding: 6px 12px; background: var(--danger); color: white;" onclick="logout()">Salir</button>
+            </div>
+
+            <!-- PANEL ADMINISTRADOR -->
+            <div id="admin-panel" class="card admin-section hidden">
+                <h2>👑 PANEL ADMINISTRADOR</h2>
+                <div class="card">
+                    <h3>Cargar Nuevo Partido</h3>
+                    <input type="text" id="jornada" placeholder="Jornada (ej. JORNADA 5)">
+                    <input type="date" id="fecha">
+                    <input type="time" id="hora">
+                    <input type="text" id="local" placeholder="Equipo Local">
+                    <input type="text" id="visitante" placeholder="Equipo Visitante">
+                    <button onclick="addMatch()" style="background: #d97706; color: white; font-weight: bold;">Cargar Partido</button>
+                </div>
+                <h3>Gestión de Participantes (Scroll)</h3>
+                <div class="scroll-list" id="admin-users"></div>
+            </div>
+
+            <!-- REGLAS -->
+            <div class="rules-box">
+                <strong>📋 Reglas de Puntuación:</strong>
+                <ul>
+                    <li><strong>5 Puntos:</strong> Marcador exacto.</li>
+                    <li><strong>3 Puntos:</strong> Empate acertado o ganador con diferencia de goles correcta.</li>
+                    <li><strong>1 Punto:</strong> Acertar solo el ganador (sin la diferencia).</li>
+                </ul>
+            </div>
+
+            <div class="notification-banner">
+                🔔 <strong>Aviso Importante:</strong> Guarda tus pronósticos antes de que inicie cada encuentro. Los partidos se bloquean automáticamente al llegar su hora.
+            </div>
+
+            <!-- JORNADA ACTUAL -->
+            <div class="card">
+                <h2>Jornada Actual - Pronósticos y Resultados</h2>
+                <div id="pronosticos-list">Cargando partidos...</div>
+                <button onclick="savePronos()" style="margin-top: 15px; background: #2563eb; color: white; font-weight: bold;">💾 Guardar Mis Pronósticos</button>
+            </div>
+
+            <!-- HISTORIAL DE JORNADAS (NUEVO) -->
+            <div class="card" style="background: #e2e8f0;">
+                <h2>📁 Historial de Resultados Anteriores</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <select id="select-jornada-historial" onchange="cargarHistorialJornada()">
+                        <option value="">Selecciona una jornada finalizada...</option>
+                    </select>
+                </div>
+                <div id="historial-container">
+                    <p style="font-size: 13px; color: #64748b; text-align: center;">Selecciona una jornada para ver los resultados oficiales y puntos otorgados.</p>
+                </div>
+            </div>
+
+            <!-- TABLA DE POSICIONES -->
+            <div class="card">
+                <h2>🏆 Tabla de Posiciones Acumulada</h2>
+                <div id="leaderboard">Cargando tabla...</div>
+            </div>
+            <button onclick="logout()" style="background: var(--danger); color: white; font-weight: bold; margin-top: 15px;">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <!-- SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const db = getFirestore(initializeApp({
+          apiKey: "AIzaSyBoMhjDHec3HoYjeVB3nLqk4YSEfho1haw",
+  authDomain: "quiniela-13212.firebaseapp.com",
+  projectId: "quiniela-13212",
+  storageBucket: "quiniela-13212.firebasestorage.app",
+  messagingSenderId: "940138734007",
+  appId: "1:940138734007:web:c584e4851eef0c3f8cc832",
+  measurementId: "G-XG4P1DCBLT"
+        }));
+
+        let currentUser = null;
+
+        window.handleLogin = async () => {
+            let n = document.getElementById('nombreUsuario').value.trim();
+            let p = document.getElementById('pass').value.trim();
+            if(!n || !p) return alert("Completa los campos.");
+            
+            let id = n.toLowerCase().replace(/\s+/g,'');
+            let isAdmin = (n.toLowerCase() === "alexis" && p === "admin123");
+            
+            try {
+                const ref = doc(db, "usuarios", id);
+                const snap = await getDoc(ref);
+                
+                if(snap.exists()) {
+                    if(snap.data().pin !== p && !isAdmin) return alert("PIN incorrecto para este nombre.");
+                    currentUser = {id, nombre: snap.data().nombre, isAdmin: isAdmin || snap.data().isAdmin};
+                } else {
+                    if(id === "alexis" && !isAdmin) return alert("PIN de admin incorrecto.");
+                    currentUser = {id, nombre: n, isAdmin};
+                    await setDoc(ref, {nombre: n, pin: p, puntos: 0, isAdmin});
+                }
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('app-section').classList.remove('hidden');
+                if(currentUser.isAdmin) document.getElementById('admin-panel').classList.remove('hidden');
+                document.getElementById('user-name-display').innerText = currentUser.nombre;
+                loadData();
+            } catch(e) { alert("Error: " + e.message); }
+        };
+
+        window.addMatch = async () => {
+            let jornada = document.getElementById('jornada').value.trim();
+            let fecha = document.getElementById('fecha').value;
+            let hora = document.getElementById('hora').value;
+            let local = document.getElementById('local').value.trim();
+            let visitante = document.getElementById('visitante').value.trim();
+
+            if(!local || !visitante || !fecha || !hora) return alert("Completa todos los datos del partido.");
+
+            await addDoc(collection(db, "partidos"), {
+                jornada: jornada || "Jornada General",
+                fecha: fecha,
+                hora: hora,
+                local: local,
+                visitante: visitante,
+                golesRealA: null,
+                golesRealB: null,
+                archivado: false
+            });
+            alert("¡Partido cargado con éxito!");
+            document.getElementById('local').value = '';
+            document.getElementById('visitante').value = '';
+            loadData();
+        };
+
+        window.eliminarUsuario = async (id, name) => {
+            if(confirm(`¿Borrar al participante ${name}?`)) {
+                await deleteDoc(doc(db, "usuarios", id));
+                await deleteDoc(doc(db, "pronosticos", id));
+                loadData();
+            }
+        };
+
+        window.savePronos = async () => {
+            const matches = await getDocs(collection(db, "partidos"));
+            let pronos = {};
+            let ahora = new Date();
+
+            matches.forEach(d => {
+                let m = d.data();
+                if(m.archivado) return;
+                let mId = d.id;
+                if(m.fecha && m.hora) {
+                    let partidoFechaHora = new Date(`${m.fecha}T${m.hora}`);
+                    if (ahora >= partidoFechaHora) return; 
+                }
+                let gA = document.getElementById(`pronA_${mId}`);
+                let gB = document.getElementById(`pronB_${mId}`);
+                if(gA && gB && !gA.disabled && gA.value !== "" && gB.value !== "") {
+                    pronos[mId] = { golesA: parseInt(gA.value), golesB: parseInt(gB.value) };
+                }
+            });
+
+            try {
+                await setDoc(doc(db, "pronosticos", currentUser.id), {
+                    nombre: currentUser.nombre,
+                    partidos: pronos
+                }, { merge: true });
+                alert("¡Pronósticos guardados con éxito!");
+                loadTablaPosiciones();
+            } catch(e) { alert("Error al guardar pronósticos: " + e.message); }
+        };
+
+        window.guardarResultadoReal = async (matchId) => {
+            let rA = document.getElementById(`realA_${matchId}`).value;
+            let rB = document.getElementById(`realB_${matchId}`).value;
+            if(rA === "" || rB === "") return alert("Introduce ambos goles reales.");
+
+            let gRealA = parseInt(rA), gRealB = parseInt(rB);
+            try {
+                await updateDoc(doc(db, "partidos", matchId), { golesRealA: gRealA, golesRealB: gRealB });
+
+                const pronosticosSnap = await getDocs(collection(db, "pronosticos"));
+                pronosticosSnap.forEach(async (pDoc) => {
+                    let uId = pDoc.id;
+                    let pData = pDoc.data().partidos || {};
+                    if(pData[matchId]) {
+                        let gA_p = pData[matchId].golesA;
+                        let gB_p = pData[matchId].golesB;
+                        
+                        let pts = 0;
+                        let difReal = gRealA - gRealB;
+                        let difPron = gA_p - gB_p;
+
+                        if (gA_p === gRealA && gB_p === gRealB) pts = 5;
+                        else if (gRealA === gRealB && gA_p === gB_p) pts = 3;
+                        else if (difReal === difPron && ((gRealA > gRealB && gA_p > gB_p) || (gRealA < gRealB && gA_p < gB_p))) pts = 3;
+                        else if ((gRealA > gRealB && gA_p > gB_p) || (gRealA < gRealB && gA_p < gB_p)) pts = 1;
+
+                        pData[matchId].puntosObtenidos = pts;
+                        await updateDoc(doc(db, "pronosticos", uId), { partidos: pData });
+                    }
+                });
+
+                setTimeout(async () => {
+                    const usersSnap = await getDocs(collection(db, "usuarios"));
+                    for(let uDoc of usersSnap.docs) {
+                        let uId = uDoc.id;
+                        let pDoc = await getDoc(doc(db, "pronosticos", uId));
+                        let total = 0;
+                        if(pDoc.exists()) {
+                            let parts = pDoc.data().partidos || {};
+                            for(let m in parts) total += (parts[m].puntosObtenidos || 0);
+                        }
+                        await updateDoc(doc(db, "usuarios", uId), { puntos: total });
+                    }
+                    alert("¡Resultado guardado y puntos recalculados!");
+                    loadData();
+                }, 1000);
+            } catch(e) { alert("Error al procesar resultado: " + e.message); }
+        };
+
+        // FUNCIÓN DE ADMINISTRADOR PARA ARCHIVAR JORNADA (MANDAR AL HISTORIAL)
+        window.archivarJornada = async (nombreJornada) => {
+            if(confirm(`¿Estás seguro de finalizar y archivar toda la "${nombreJornada}"? Los puntos ya sumados se conservarán en la tabla acumulada.`)) {
+                const matches = await getDocs(collection(db, "partidos"));
+                for(let d of matches.docs) {
+                    if(d.data().jornada === nombreJornada) {
+                        await updateDoc(doc(db, "partidos", d.id), { archivado: true });
+                    }
+                }
+                alert(`¡${nombreJornada} archivada con éxito al historial!`);
+                loadData();
+            }
+        };
+
+        async function loadData() {
+            const matches = await getDocs(collection(db, "partidos"));
+            const pDoc = await getDoc(doc(db, "pronosticos", currentUser.id));
+            let userPronos = pDoc.exists() ? pDoc.data().partidos || {} : {};
+            let ahora = new Date();
+
+            let mHtml = "<table><tr><th>Jornada</th><th>Fecha/Hora</th><th>Partido</th><th>Pronóstico</th></tr>";
+            let jornadasArchivadas = new Set();
+            let jornadasActivas = new Set();
+
+            matches.forEach(d => {
+                let m = d.data();
+                if(!m.local || !m.visitante) return; 
+
+                if(m.archivado) {
+                    jornadasArchivadas.add(m.jornada);
+                    return; // No se muestran en la jornada actual
+                }
+
+                jornadasActivas.add(m.jornada);
+                let mId = d.id;
+                let sA = userPronos[mId] ? userPronos[mId].golesA ?? '' : '';
+                let sB = userPronos[mId] ? userPronos[mId].golesB ?? '' : '';
+
+                let partidoCerrado = false;
+                if(m.fecha && m.hora) {
+                    let partidoFechaHora = new Date(`${m.fecha}T${m.hora}`);
+                    if (ahora >= partidoFechaHora) partidoCerrado = true;
+                }
+
+                let inputState = partidoCerrado ? "disabled style='background:#e2e8f0; color:#64748b;'" : "";
+                let estadoTexto = partidoCerrado ? "<br><span class='closed-badge'>🔒 Cerrado</span>" : "";
+
+                let adminBox = "";
+                if(currentUser.isAdmin) {
+                    let rA = m.golesRealA ?? '';
+                    let rB = m.golesRealB ?? '';
+                    adminBox = `
+                        <div class="admin-result-box">
+                            Resultado Oficial: 
+                            <input type="number" min="0" id="realA_${mId}" class="score-input" value="${rA}"> - 
+                            <input type="number" min="0" id="realB_${mId}" class="score-input" value="${rB}">
+                            <button onclick="window.guardarResultadoReal('${mId}')" style="margin-top:4px; background:#d97706; color:white; padding:4px; font-size:11px;">⚡ Calcular</button>
+                        </div>
+                    `;
+                } else if(m.golesRealA !== null && m.golesRealA !== undefined) {
+                    adminBox = `<div style="color: #16a34a; font-size: 11px; margin-top: 3px;">Oficial: ${m.golesRealA} - ${m.golesRealB}</div>`;
+                }
+
+                mHtml += `
+                    <tr>
+                        <td>${m.jornada || ''}</td>
+                        <td>${m.fecha || ''} ${m.hora || ''} ${estadoTexto}</td>
+                        <td><strong>${m.local} vs ${m.visitante}</strong>${adminBox}</td>
+                        <td>
+                            <input type="number" min="0" id="pronA_${mId}" class="score-input" value="${sA}" ${inputState}> - 
+                            <input type="number" min="0" id="pronB_${mId}" class="score-input" value="${sB}" ${inputState}>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Si eres admin, añadimos un botón para archivar cada jornada activa
+            if(currentUser.isAdmin && jornadasActivas.size > 0) {
+                jornadasActivas.forEach(jName => {
+                    mHtml += `<tr><td colspan="4" style="background: #fef3c7; text-align: center;"><button onclick="window.archivarJornada('${jName}')" style="background: #b45309; color: white; width: auto; padding: 6px 12px; font-size: 12px;">📁 Finalizar y Archivar "${jName}" al Historial</button></td></tr>`;
+                });
+            }
+
+            document.getElementById('pronosticos-list'].innerHTML = mHtml + "</table>";
+            
+            // Poblar el selector de historial
+            let selectHist = document.getElementById('select-jornada-historial');
+            let selectHtml = '<option value="">Selecciona una jornada finalizada...</option>';
+            jornadasArchivadas.forEach(j => {
+                selectHtml += `<option value="${j}">${j}</option>`;
+            });
+            selectHist.innerHTML = selectHtml;
+
+            if(currentUser.isAdmin) {
+                const users = await getDocs(collection(db, "usuarios"));
+                let uHtml = "<table><tr><th>Nombre</th><th>PIN</th><th>Acción</th></tr>";
+                users.forEach(d => {
+                    let u = d.data();
+                    if(d.id !== "alexis") {
+                        uHtml += `<tr><td>${u.nombre}</td><td><strong>${u.pin}</strong></td><td><button class="btn-delete" onclick="eliminarUsuario('${d.id}','${u.nombre}')">Borrar</button></td></tr>`;
+                    }
+                });
+                document.getElementById('admin-users').innerHTML = uHtml + "</table>";
+            }
+
+            loadTablaPosiciones();
+        }
+
+        // CARGAR HISTORIAL DE UNA JORNADA ARCHIVADA
+        window.cargarHistorialJornada = async () => {
+            let jName = document.getElementById('select-jornada-historial').value;
+            let container = document.getElementById('historial-container');
+            if(!jName) {
+                container.innerHTML = "<p style='font-size: 13px; color: #64748b; text-align: center;'>Selecciona una jornada para ver los resultados oficiales.</p>";
+                return;
+            }
+
+            const matches = await getDocs(collection(db, "partidos"));
+            let h = `<table><tr><th>Partido</th><th>Resultado Oficial</th></tr>`;
+            let hayDatos = false;
+            matches.forEach(d => {
+                let m = d.data();
+                if(m.jornada === jName && m.archivado) {
+                    hayDatos = true;
+                    let res = (m.golesRealA !== null && m.golesRealB !== null) ? `${m.golesRealA} - ${m.golesRealB}` : "Sin registrar";
+                    h += `<tr><td>${m.local} vs ${m.visitante}</td><td><strong>${res}</strong></td></tr>`;
+                }
+            });
+            container.innerHTML = hayDatos ? h + "</table>" : "<p style='font-size: 13px; text-align: center;'>No hay partidos registrados en esta jornada.</p>";
+        };
+
+        async function loadTablaPosiciones() {
+            const snap = await getDocs(collection(db, "usuarios"));
+            let lista = [];
+            snap.forEach(d => {
+                let u = d.data();
+                if(d.id !== "alexis") lista.push(u);
+            });
+            lista.sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
+
+            let h = "<table><tr><th>Participante</th><th style='text-align:center;'>Puntos Acumulados</th></tr>";
+            lista.forEach(u => {
+                h += `<tr><td>${u.nombre}</td><td style='text-align:center; font-weight:bold; color:#16a34a;'>${u.puntos || 0}</td></tr>`;
+            });
+            document.getElementById('leaderboard').innerHTML = h + "</table>";
+        }
+
+        window.logout = () => location.reload();
+    </script>
+</body>
+</html>
